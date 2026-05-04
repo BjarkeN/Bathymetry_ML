@@ -29,7 +29,7 @@ def load_netcdf_data(data_path: Union[str, Path]) -> Dict:
         "topo_low": nc.Dataset(data_path / "topo_low.nc", "r"),
         "topo_ship": nc.Dataset(data_path / "topo_ship.nc", "r"),
         "grav_SWOT": nc.Dataset(data_path / "grav_SWOT_01.nc", "r"),
-        "sio_vgg": nc.Dataset(data_path / "curv_SWOT_02.nc", "r"),
+        "sio_vgg": nc.Dataset(data_path / "curv_SWOT_03.nc", "r"),
     }
 
     return datasets
