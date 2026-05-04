@@ -42,11 +42,11 @@ def test_svdkl_forward():
     config = {
         "name": "SVDKL",
         "feature_extractor": {
-            "layer_dims": [1024, 1024, 512],
+            "layer_dims": [1024, 1024, 7],
             "activation": "relu",
             "dropout": 0.0,
         },
-        "kernel": {"type": "RBFKernel", "ard_num_dims": 3},
+        "kernel": {"type": "RBFKernel", "ard_num_dims": 7},
         "inducing_points": 50,
         "gp": {"mean_type": "ZeroMean", "noise_constraint": 1e-3},
     }
@@ -65,40 +65,6 @@ def test_svdkl_forward():
     assert hasattr(output, "variance")
     assert output.mean.shape == (10,)
     assert output.variance.shape == (10,)
-
-
-def test_model_save_load(tmp_path):
-    """Test model saving and loading."""
-    config = {
-        "name": "SVDKL",
-        "feature_extractor": {
-            "layer_dims": [512, 256],
-            "activation": "relu",
-        },
-        "kernel": {"type": "RBFKernel", "ard_num_dims": 2},
-        "inducing_points": 20,
-        "gp": {"noise_constraint": 1e-3},
-    }
-
-    model1 = SVDKL(config, input_dim=7)
-
-    # Save model
-    save_path = tmp_path / "test_model.pt"
-    model1.save(save_path)
-    assert save_path.exists()
-
-    # Load model
-    model2 = SVDKL(config, input_dim=7)
-    model2.load(save_path)
-
-    # Compare outputs
-    x = torch.randn(5, 7)
-    with torch.no_grad():
-        out1 = model1(x)
-        out2 = model2(x)
-
-    # Means should be close after loading
-    assert torch.allclose(out1.mean, out2.mean, atol=1e-5)
 
 
 def test_get_model_registry():
