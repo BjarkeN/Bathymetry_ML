@@ -5,6 +5,7 @@ from typing import Optional
 
 import typer
 
+from bathymetry_ml import resolve_path
 from bathymetry_ml.hpc import HPCConfig, HPCJobTemplate, HPCJobSubmitter, generate_and_save_job_script
 
 app = typer.Typer(help="HPC job management for Bathymetry ML")
@@ -34,10 +35,13 @@ def generate(
     try:
         from bathymetry_ml.train import load_yaml
 
+        config = resolve_path(str(config))
         training_config = load_yaml(config)
-        hpc_config_path = training_config.get("execution", {}).get("hpc_config", "configs/hpc.yaml")
+        hpc_config_path = resolve_path(
+            training_config.get("execution", {}).get("hpc_config", "configs/hpc.yaml")
+        )
 
-        script_path = generate_and_save_job_script(hpc_config_path, command, output)
+        script_path = generate_and_save_job_script(str(hpc_config_path), command, str(output))
 
         print(f"\nJob script generated successfully!")
         print(f"  Output: {script_path}")
@@ -80,13 +84,16 @@ def submit(
     try:
         from bathymetry_ml.train import load_yaml
 
+        config = resolve_path(str(config))
         training_config = load_yaml(config)
-        hpc_config_path = training_config.get("execution", {}).get("hpc_config", "configs/hpc.yaml")
+        hpc_config_path = resolve_path(
+            training_config.get("execution", {}).get("hpc_config", "configs/hpc.yaml")
+        )
 
         # Generate script
         print("\n[1] Generating job script...")
         script_path = Path("_temp_job.sh")
-        generate_and_save_job_script(hpc_config_path, command, script_path)
+        generate_and_save_job_script(str(hpc_config_path), command, str(script_path))
         print(f"    Generated: {script_path}")
 
         # Review if not auto-submit
@@ -178,11 +185,15 @@ def create_eval_job(
     try:
         from bathymetry_ml.train import load_yaml
 
+        config = resolve_path(str(config))
+        model_path = resolve_path(str(model_path))
         training_config = load_yaml(config)
-        hpc_config_path = training_config.get("execution", {}).get("hpc_config", "configs/hpc.yaml")
+        hpc_config_path = resolve_path(
+            training_config.get("execution", {}).get("hpc_config", "configs/hpc.yaml")
+        )
 
         command = f"python -m bathymetry_ml.evaluate --config {config} --model-path {model_path}"
-        script_path = generate_and_save_job_script(hpc_config_path, command, output)
+        script_path = generate_and_save_job_script(str(hpc_config_path), command, str(output))
 
         print(f"\nEvaluation job script generated successfully!")
         print(f"  Output: {script_path}")

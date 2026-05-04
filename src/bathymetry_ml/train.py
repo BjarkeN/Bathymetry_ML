@@ -12,6 +12,7 @@ import typer
 import numpy as np
 from tqdm import tqdm
 
+from bathymetry_ml import resolve_path
 from .data import preprocess_data, get_data_loaders
 from .models import get_model
 from .hpc import generate_and_save_job_script
@@ -23,11 +24,12 @@ def load_yaml(path: Union[str, Path]) -> Dict:
     """Load YAML configuration file.
     
     Args:
-        path: Path to YAML file
+        path: Path to YAML file (absolute or relative to project root)
         
     Returns:
         Configuration dictionary
     """
+    path = resolve_path(str(path))
     with open(path) as f:
         return yaml.safe_load(f)
 
@@ -162,24 +164,30 @@ def main(
     print("BATHYMETRY ML - TRAINING PIPELINE")
     print("=" * 80)
 
+    # Resolve config paths relative to project root
+    config = resolve_path(str(config))
+    
     # Load configurations
     training_config = load_yaml(config)
-    preprocessing_config = load_yaml(training_config["data"]["preprocessing_config"])
-    model_config_path = training_config["model"]["config"]
+    preprocessing_config_path = resolve_path(training_config["data"]["preprocessing_config"])
+    preprocessing_config = load_yaml(preprocessing_config_path)
+    model_config_path = resolve_path(training_config["model"]["config"])
 
     print(f"\nTraining config: {config}")
-    print(f"Preprocessing config: {training_config['data']['preprocessing_config']}")
+    print(f"Preprocessing config: {preprocessing_config_path}")
     print(f"Model config: {model_config_path}")
     print(f"Model: {training_config['model']['name']}")
 
     # HPC job generation mode
     if generate_job:
         print("\n[HPC MODE] Generating job script...")
-        hpc_config_path = training_config.get("execution", {}).get("hpc_config", "configs/hpc.yaml")
+        hpc_config_path = resolve_path(
+            training_config.get("execution", {}).get("hpc_config", "configs/hpc.yaml")
+        )
         command = f"python -m bathymetry_ml.train --config {config}"
         output_path = "job_train.sh"
 
-        script_path = generate_and_save_job_script(hpc_config_path, command, output_path)
+        script_path = generate_and_save_job_script(str(hpc_config_path), command, output_path)
         print(f"Job script generated: {script_path}")
         print(f"Submit with: bsub < {script_path}")
         return
@@ -301,14 +309,14 @@ def main(
     # Save model and metrics
     print("\n[SAVING] Saving model and metrics...")
     output_cfg = training_config.get("output", {})
-    model_path = output_cfg.get("model_save_path", "models/svdkl_latest.pt")
-    results_dir = output_cfg.get("results_dir", "results/")
+    model_path = resolve_path(output_cfg.get("model_save_path", "models/svdkl_latest.pt"))
+    results_dir = resolve_path(output_cfg.get("results_dir", "results/"))
 
     model.save(model_path)
     print(f"Model saved: {model_path}")
 
     # Save metrics
-    metrics_path = Path(results_dir) / "metrics.json"
+    metrics_path = results_dir / "metrics.json"
     save_metrics(metrics, metrics_path)
     print(f"Metrics saved: {metrics_path}")
 

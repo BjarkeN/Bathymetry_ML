@@ -10,6 +10,8 @@ from scipy.spatial import cKDTree
 import matplotlib.pyplot as plt
 import yaml
 
+from bathymetry_ml import resolve_path
+
 
 def load_netcdf_data(data_path: Union[str, Path]) -> Dict:
     """Load netCDF4 files from data folder.
@@ -495,7 +497,7 @@ def exploratory_run(config: Dict):
 
     # Generate additional visualizations
     if config.get("visualization", {}).get("save_plots", True):
-        output_dir = config.get("visualization", {}).get("plots_dir", "reports/figures/")
+        output_dir = resolve_path(config.get("visualization", {}).get("plots_dir", "reports/figures/"))
         print(f"Saving plots to {output_dir}")
 
         # Combine for visualization

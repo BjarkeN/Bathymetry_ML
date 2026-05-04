@@ -11,6 +11,7 @@ import gpytorch
 import typer
 import numpy as np
 
+from bathymetry_ml import resolve_path
 from .data import preprocess_data, BathymetryDataset
 from .hpc import generate_and_save_job_script
 
@@ -21,11 +22,12 @@ def load_yaml(path: Union[str, Path]) -> Dict:
     """Load YAML configuration file.
     
     Args:
-        path: Path to YAML file
+        path: Path to YAML file (absolute or relative to project root)
         
     Returns:
         Configuration dictionary
     """
+    path = resolve_path(str(path))
     with open(path) as f:
         return yaml.safe_load(f)
 
@@ -151,9 +153,14 @@ def main(
     print("BATHYMETRY ML - EVALUATION PIPELINE")
     print("=" * 80)
 
+    # Resolve config paths relative to project root
+    config = resolve_path(str(config))
+    model_path = resolve_path(str(model_path))
+    
     # Load configurations
     training_config = load_yaml(config)
-    preprocessing_config = load_yaml(training_config["data"]["preprocessing_config"])
+    preprocessing_config_path = resolve_path(training_config["data"]["preprocessing_config"])
+    preprocessing_config = load_yaml(preprocessing_config_path)
 
     print(f"\nTraining config: {config}")
     print(f"Model: {model_path}")
@@ -161,11 +168,13 @@ def main(
     # HPC job generation mode
     if generate_job:
         print("\n[HPC MODE] Generating job script...")
-        hpc_config_path = training_config.get("execution", {}).get("hpc_config", "configs/hpc.yaml")
+        hpc_config_path = resolve_path(
+            training_config.get("execution", {}).get("hpc_config", "configs/hpc.yaml")
+        )
         command = f"python -m bathymetry_ml.evaluate --config {config} --model-path {model_path}"
         output_path = "job_eval.sh"
 
-        script_path = generate_and_save_job_script(hpc_config_path, command, output_path)
+        script_path = generate_and_save_job_script(str(hpc_config_path), command, output_path)
         print(f"Job script generated: {script_path}")
         print(f"Submit with: bsub < {script_path}")
         return
@@ -213,7 +222,7 @@ def main(
     # Save predictions
     print("\n[SAVING] Saving predictions...")
     output_cfg = training_config.get("output", {})
-    results_dir = output_cfg.get("results_dir", "results/")
+    results_dir = resolve_path(output_cfg.get("results_dir", "results/"))
 
     save_predictions(means, stds, results_dir)
 
@@ -226,7 +235,7 @@ def main(
         "num_predictions": len(means),
     }
 
-    stats_path = Path(results_dir) / "prediction_stats.json"
+    stats_path = results_dir / "prediction_stats.json"
     stats_path.parent.mkdir(parents=True, exist_ok=True)
     with open(stats_path, "w") as f:
         json.dump(stats, f, indent=2)

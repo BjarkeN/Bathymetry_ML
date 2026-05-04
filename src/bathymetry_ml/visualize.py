@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import typer
 import yaml
 
+from bathymetry_ml import resolve_path
 from .data import preprocess_data, exploratory_run
 
 app = typer.Typer(help="Visualization and exploratory analysis")
@@ -16,11 +17,12 @@ def load_yaml(path: Union[str, Path]) -> Dict:
     """Load YAML configuration file.
     
     Args:
-        path: Path to YAML file
+        path: Path to YAML file (absolute or relative to project root)
         
     Returns:
         Configuration dictionary
     """
+    path = resolve_path(str(path))
     with open(path) as f:
         return yaml.safe_load(f)
 
@@ -214,6 +216,10 @@ def exploratory(
     print("EXPLORATORY DATA ANALYSIS")
     print("=" * 80)
 
+    # Resolve config paths
+    config = resolve_path(str(config))
+    output_dir = resolve_path(str(output_dir))
+    
     # Load config
     preprocessing_config = load_yaml(config)
 
@@ -267,6 +273,10 @@ def metrics(
     print("METRICS VISUALIZATION")
     print("=" * 80)
 
+    # Resolve paths
+    metrics_path = resolve_path(str(metrics_path))
+    output_dir = resolve_path(str(output_dir))
+    
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -274,7 +284,7 @@ def metrics(
     print(f"Output directory: {output_dir}")
 
     try:
-        plot_training_metrics(metrics_path, save_dir=output_dir, show=show)
+        plot_training_metrics(str(metrics_path), save_dir=output_dir, show=show)
         print(f"\nMetrics plots saved to: {output_dir}")
     except Exception as e:
         print(f"Error visualizing metrics: {e}")
