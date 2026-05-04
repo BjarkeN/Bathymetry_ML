@@ -1,7 +1,7 @@
 torch==2.6.0
 typer==0.15.2
 fastapi==0.115.12
-uvicorn==0.34.2
+uvicorn==0.46.0
 gpytorch>=1.13
 netCDF4>=1.6
 scipy>=1.11
