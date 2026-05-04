@@ -325,20 +325,39 @@ def preprocess_data(config: Dict, visualize: bool = False) -> Tuple[torch.Tensor
 
     print(f"Valid data points: {filtered_dict['ship'].size}")
 
-    # Group data
-    grouped_data = group_data(
-        filtered_dict["lon"],
-        filtered_dict["lat"],
-        filtered_dict,
-        group_size,
-        visualize=visualize,
-    )
-
-    # Separate features and targets
-    # Features: all but last column (ship bathymetry)
-    # Targets: last column (ship bathymetry)
-    train_data = torch.from_numpy(grouped_data[:, :, :-1]).float()
-    train_targets = torch.from_numpy(grouped_data[:, :, -1]).float()
+    # Conditionally group data
+    enable_grouping = preprocessing_cfg.get("group_data", False)
+    
+    if enable_grouping:
+        print(f"[GROUPING] Applying spatial grouping (group_size={group_size})...")
+        grouped_data = group_data(
+            filtered_dict["lon"],
+            filtered_dict["lat"],
+            filtered_dict,
+            group_size,
+            visualize=visualize,
+        )
+        
+        # Separate features and targets from grouped data
+        # Features: all but last column (ship bathymetry)
+        # Targets: last column (ship bathymetry)
+        train_data = torch.from_numpy(grouped_data[:, :, :-1]).float()
+        train_targets = torch.from_numpy(grouped_data[:, :, -1]).float()
+    else:
+        print("[GROUPING] Skipping spatial grouping - using flattened data")
+        # Stack features without grouping
+        train_data = torch.from_numpy(
+            np.c_[
+                filtered_dict["rlat"],
+                filtered_dict["lon_s"],
+                filtered_dict["lon_c"],
+                filtered_dict["grav_on_topo"],
+                filtered_dict["topo_low"],
+                filtered_dict["sio_vgg"],
+                filtered_dict["dist"],
+            ]
+        ).float()
+        train_targets = torch.from_numpy(filtered_dict["ship"]).float()
 
     # For predictions, use all features (excluding ship data)
     # Reshape back to original grid for spatial predictions

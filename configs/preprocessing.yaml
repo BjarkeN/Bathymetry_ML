@@ -4,7 +4,8 @@ region: global                      # "global" or "malaysia"
 aoi: [-180, 180, -90, 90]          # Area of interest [lon_min, lon_max, lat_min, lat_max]
 
 preprocessing:
-  group_size: 10                    # Number of KDTree grouping levels
+  group_data: false                 # Enable/disable spatial data grouping via KDTree
+  group_size: 10                    # Number of KDTree grouping levels (only used if group_data: true)
   n_skip_visualization: 100         # Sampling factor for scatter plots in visualization
   
 filtering:
