@@ -46,7 +46,7 @@ Predicts seafloor bathymetry from satellite gravity measurements using advanced 
 ## Project Structure
 
 ```
-bathymetryML/
+Bathymetry_ML/                  # Project root
 ├── src/bathymetry_ml/              # Main source code
 │   ├── models/                     # Model implementations
 │   │   ├── base.py                # BaseModel interface
@@ -62,7 +62,7 @@ bathymetryML/
 │   ├── hpc.py                     # HPC job generation
 │   ├── hpc_utils.py               # LSF utilities
 │   ├── api.py                     # FastAPI endpoints (future)
-│   └── __init__.py                # Package initialization
+│   └── __init__.py                # Package initialization (includes resolve_path utility)
 │
 ├── scripts/
 │   └── generate_hpc_job.py        # CLI tool for HPC job management
@@ -137,7 +137,7 @@ bathymetryML/
 
 ```bash
 git clone <repository-url>
-cd Bathymetry_ML/bathymetryML
+cd Bathymetry_ML
 ```
 
 ### Step 2: Create Virtual Environment
@@ -170,6 +170,19 @@ pip install -r requirements_dev.txt
 python -c "import bathymetry_ml; import gpytorch; print('✓ Installation successful')"
 pytest tests/ -v  # Run unit tests
 ```
+
+### Path Resolution
+
+**Important**: All paths in the application are resolved relative to the project root (`Bathymetry_ML/`). This means you can run commands from any directory and paths will work correctly:
+
+```bash
+# These all work regardless of your current directory
+python -m bathymetry_ml.train --config configs/training.yaml
+python -m bathymetry_ml.evaluate --model-path models/svdkl_latest.pt
+python scripts/generate_hpc_job.py generate --config configs/training.yaml
+```
+
+The `resolve_path()` utility function in `src/bathymetry_ml/__init__.py` handles this automatically.
 
 ---
 
@@ -627,8 +640,7 @@ Test coverage includes:
 ### "ModuleNotFoundError: No module named 'bathymetry_ml'"
 
 ```bash
-cd bathymetryML
-pip install -e .  # Install in editable mode
+pip install -e .  # Install in editable mode from project root
 ```
 
 ### CUDA Out of Memory
