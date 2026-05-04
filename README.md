@@ -79,7 +79,7 @@ Bathymetry_ML/                  # Project root
 │   ├── raw/                       # External data mount point (symlink)
 │   └── processed/                 # Preprocessed tensors
 │
-├── models/                        # Trained model checkpoints
+├── modelfiles/                    # Trained model checkpoints
 │   └── checkpoints/               # Training checkpoints
 │
 ├── results/                       # Training outputs
@@ -106,11 +106,6 @@ Bathymetry_ML/                  # Project root
 ├── .github/                       # GitHub configuration
 │   └── workflows/
 │       └── tests.yaml            # CI/CD tests
-│
-├── .devcontainer/                # Dev container setup
-├── dockerfiles/                  # Docker images
-│   ├── train.dockerfile
-│   └── api.dockerfile
 │
 ├── pyproject.toml                # Python project metadata
 ├── requirements.txt              # Production dependencies
@@ -178,7 +173,7 @@ pytest tests/ -v  # Run unit tests
 ```bash
 # These all work regardless of your current directory
 python -m bathymetry_ml.train --config configs/training.yaml
-python -m bathymetry_ml.evaluate --model-path models/svdkl_latest.pt
+python -m bathymetry_ml.evaluate --model-path modelfiles/svdkl_latest.pt
 python scripts/generate_hpc_job.py generate --config configs/training.yaml
 ```
 
@@ -209,7 +204,7 @@ python -m bathymetry_ml.train --config configs/training.yaml
 ```
 
 **Output**: 
-- Model saved to `models/svdkl_latest.pt`
+- Model saved to `modelfiles/svdkl_latest.pt`
 - Metrics saved to `results/metrics.json`
 - Plots saved to `reports/figures/`
 
@@ -218,7 +213,7 @@ python -m bathymetry_ml.train --config configs/training.yaml
 ```bash
 python -m bathymetry_ml.evaluate \
   --config configs/training.yaml \
-  --model-path models/svdkl_latest.pt
+  --model-path modelfiles/svdkl_latest.pt
 ```
 
 **Output**:
@@ -297,8 +292,8 @@ training:
   log_every_n_batches: 100           # Logging frequency
 
 output:
-  model_save_path: models/svdkl_latest.pt
-  checkpoint_dir: models/checkpoints/
+  model_save_path: modelfiles/svdkl_latest.pt
+  checkpoint_dir: modelfiles/checkpoints/
   results_dir: results/
   metrics_format: json               # "json" or "csv"
 ```
@@ -325,7 +320,7 @@ lsf:
 
 job_output:
   logs_dir: logs/                    # Where to save job logs
-  model_save_path: models/           # Where to save models
+  model_save_path: modelfiles/       # Where to save models
   results_dir: results/              # Where to save results
 ```
 
@@ -381,7 +376,7 @@ python -m bathymetry_ml.train --config configs/training.yaml
 # 3. Evaluate
 python -m bathymetry_ml.evaluate \
   --config configs/training.yaml \
-  --model-path models/svdkl_latest.pt
+  --model-path modelfiles/svdkl_latest.pt
 
 # 4. Visualize training metrics
 python -m bathymetry_ml.visualize metrics \
@@ -532,7 +527,7 @@ cat logs/gpu_bathy*.out
 ```bash
 python scripts/generate_hpc_job.py create-eval-job \
   --config configs/training.yaml \
-  --model-path models/svdkl.pt \
+  --model-path modelfiles/svdkl.pt \
   --output job_eval.sh
 
 bsub < job_eval.sh
@@ -586,7 +581,7 @@ data/processed/{region}/
 ### Training Output
 
 ```
-models/
+modelfiles/
 ├── svdkl_latest.pt         # Latest model checkpoint
 └── checkpoints/
     ├── epoch_0.pt
