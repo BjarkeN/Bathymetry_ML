@@ -1,0 +1,22 @@
+environment:
+  conda_env: bathymetry_ml          # Conda environment name
+  cuda_module: cuda/11.6            # CUDA module to load
+
+lsf:
+  # Adaptive parameters based on gpu_type
+  queue: gpuv100                    # LSF queue name
+  job_name: bathy_training          # Job name (can be overridden per run)
+  num_cores: 4
+  num_gpus: 1
+  gpu_type: v100                    # "v100" or "v32gb"
+  walltime: "18:00"                 # HH:MM format
+  memory: 16GB
+  
+  # Optional features
+  email_notifications: false
+  email_address: ""
+  
+job_output:
+  logs_dir: logs/
+  model_save_path: models/
+  results_dir: results/

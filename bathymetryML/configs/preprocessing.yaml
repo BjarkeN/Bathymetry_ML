@@ -1,0 +1,22 @@
+# Data Preprocessing Configuration
+data_path: /path/to/external/data  # Single path containing all netCDF4 files
+region: global                      # "global" or "malaysia"
+aoi: [-180, 180, -90, 90]          # Area of interest [lon_min, lon_max, lat_min, lat_max]
+
+preprocessing:
+  group_size: 10                    # Number of KDTree grouping levels
+  n_skip_visualization: 100         # Sampling factor for scatter plots in visualization
+  
+filtering:
+  min_dist_to_coast: 0.1            # Minimum distance to coast (grid units)
+  ship_data_required: true          # Only keep points with ship bathymetry data
+  grav_on_topo_bounds: 300          # Maximum absolute value for gravity on topography
+  sio_bounds: 400                   # Maximum absolute value for SIO data
+
+output:
+  processed_data_dir: data/processed/
+
+visualization:
+  enabled: false                    # Set to true for exploratory run with plots
+  save_plots: true                  # Save PNG files to reports/figures/
+  show_plots: false                 # Display plots interactively (for notebooks)

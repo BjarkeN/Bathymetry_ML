@@ -1,0 +1,25 @@
+execution:
+  mode: local                       # "local" or "hpc"
+  hpc_config: configs/hpc.yaml
+  device: cuda                      # "cuda" or "cpu"
+  seed: 42
+
+model:
+  name: svdkl                       # Model to use (svdkl, dkl, or custom)
+  config: configs/models/svdkl.yaml # Path to model-specific config
+
+data:
+  preprocessing_config: configs/preprocessing.yaml
+  train_minibatch_size: 2076
+  prediction_minibatch_size: 50000
+  validation_block_size: 10
+
+training:
+  num_epochs: 80
+  log_every_n_batches: 100
+  
+output:
+  model_save_path: models/svdkl_latest.pt
+  checkpoint_dir: models/checkpoints/
+  results_dir: results/
+  metrics_format: json              # "json" or "csv"

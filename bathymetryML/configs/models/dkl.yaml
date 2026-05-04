@@ -1,0 +1,19 @@
+name: DKL
+description: Deep Kernel Learning with Exact GP
+
+feature_extractor:
+  input_dim: 7
+  layer_dims: [1000, 500, 500, 500, 500, 50, 3]
+  activation: relu
+  dropout: 0.0
+
+kernel:
+  type: GaussMarkov                 # Custom Gauss-Markov kernel
+  
+gp:
+  grid_size: 100                    # Grid interpolation size
+  mean_type: ConstantMean
+  
+optimizer:
+  type: Adam
+  lr: 0.1

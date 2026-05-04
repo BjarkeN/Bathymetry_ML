@@ -1,0 +1,28 @@
+name: SVDKL
+description: Sparse Variational Deep Kernel Learning with Gaussian Process
+
+feature_extractor:
+  input_dim: 7                      # Auto-determined from data
+  layer_dims: [1024, 1024, 1024, 1024, 1024, 1024, 6]
+  activation: relu
+  dropout: 0.0
+
+kernel:
+  type: RBFKernel                   # "RBFKernel" or "GaussMarkov"
+  ard_num_dims: 6
+  
+inducing_points: 100                # Number of inducing points
+
+gp:
+  mean_type: ZeroMean               # "ConstantMean" or "ZeroMean"
+  noise_constraint: 1e-3            # Lower bound on noise
+
+optimizer:
+  type: Adam
+  lr: 1e-5
+  weight_decay: 1e-4
+  
+normalization:
+  normalize_inputs: true
+  normalize_targets: true
+  bounds: [-1.0, 1.0]
