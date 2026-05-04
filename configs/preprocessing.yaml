@@ -1,5 +1,5 @@
 # Data Preprocessing Configuration
-data_path: /path/to/external/data  # Single path containing all netCDF4 files
+data_path: /work3/bjanil/auxFiles/bathymetry  # Single path containing all netCDF4 files
 region: global                      # "global" or "malaysia"
 aoi: [-180, 180, -90, 90]          # Area of interest [lon_min, lon_max, lat_min, lat_max]
 
