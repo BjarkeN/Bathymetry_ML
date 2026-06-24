@@ -4,7 +4,7 @@ fastapi==0.115.12
 uvicorn==0.34.2
 gpytorch>=1.13
 netCDF4>=1.6
-scipy>=1.11
+scipy>=1.17.1
 numpy>=1.24
 matplotlib>=3.7
 pyyaml>=6.0
